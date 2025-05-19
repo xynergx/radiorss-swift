@@ -13,6 +13,7 @@ struct AddPodcastView: View {
     @Environment(\.modelContext) private var context
     @State private var urlText = ""
     @State private var busy = false
+    @State private var errorMessage: String?
 
     var body: some View {
         NavigationStack {
@@ -29,6 +30,11 @@ struct AddPodcastView: View {
                     Button("Add") { add() }
                         .disabled(urlText.isEmpty || busy)
                 }
+            }
+            .alert(errorMessage ?? "",
+                   isPresented: Binding(get: { errorMessage != nil },
+                                        set: { if !$0 { errorMessage = nil } })) {
+                Button("OK", role: .cancel) { }
             }
         }
     }
@@ -49,6 +55,7 @@ struct AddPodcastView: View {
                 dismiss()
             } catch {
                 busy = false
+                errorMessage = error.localizedDescription
             }
         }
     }
