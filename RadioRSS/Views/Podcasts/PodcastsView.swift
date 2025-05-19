@@ -57,7 +57,10 @@ struct PodcastsView: View {
                         Button("Import from File") { showingImportFile = true }
                         Button("Import from URL") { showingImportURL = true }
                         Button("Export URL's") { prepareExport() }
-                    } label: { Image(systemName: "plus") }
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.title3)
+                    }
                 }
             }
             .padding(.bottom, bottomPadding)
