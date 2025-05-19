@@ -13,7 +13,7 @@ final class NetworkMonitor: ObservableObject {
     static let shared = NetworkMonitor()
     @Published private(set) var isConnected = true
     private let monitor = NWPathMonitor()
-    
+
     private init() {
         monitor.pathUpdateHandler = { [weak self] path in
             DispatchQueue.main.async {
@@ -21,5 +21,6 @@ final class NetworkMonitor: ObservableObject {
             }
         }
         monitor.start(queue: DispatchQueue(label: "NetworkMonitor"))
+        isConnected = monitor.currentPath.status == .satisfied
     }
 }
