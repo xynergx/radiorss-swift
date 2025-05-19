@@ -194,9 +194,7 @@ final class PlayerViewModel: ObservableObject {
         stallObserver = NotificationCenter.default.addObserver(forName: .AVPlayerItemPlaybackStalled,
                                                                object: item,
                                                                queue: .main) { [weak self] _ in
-            Task { @MainActor in
-                self?.handlePlaybackStalled()
-            }
+            self?.handlePlaybackStalled()
         }
 
         player.replaceCurrentItem(with: item)
