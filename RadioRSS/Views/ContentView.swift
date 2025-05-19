@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct ContentView: View {
     @State private var selection = 0
     @EnvironmentObject private var player: PlayerViewModel
@@ -22,6 +23,10 @@ struct ContentView: View {
             SettingsView()
                 .tag(2)
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
+        }
+        .overlay(alignment: .top) {
+            OfflineBannerView()
+                .ignoresSafeArea()
         }
         .overlay(alignment: .bottom) {
             MiniPlayerView()
