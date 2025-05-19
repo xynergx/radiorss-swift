@@ -52,16 +52,18 @@ final class PlayerViewModel: ObservableObject {
     private func observePlayerStatus() {
         statusObserver = player.observe(\.timeControlStatus, options: [.new]) { [weak self] p, _ in
             guard let self else { return }
-            switch p.timeControlStatus {
-            case .playing:
-                self.isPlaying = true
-                self.autoPausedForBuffer = false
-            case .paused, .waitingToPlayAtSpecifiedRate:
-                self.isPlaying = false
-            @unknown default:
-                self.isPlaying = false
+            Task { @MainActor in
+                switch p.timeControlStatus {
+                case .playing:
+                    self.isPlaying = true
+                    self.autoPausedForBuffer = false
+                case .paused, .waitingToPlayAtSpecifiedRate:
+                    self.isPlaying = false
+                @unknown default:
+                    self.isPlaying = false
+                }
+                self.updateNowPlaying()
             }
-            self.updateNowPlaying()
         }
     }
 
@@ -138,14 +140,16 @@ final class PlayerViewModel: ObservableObject {
                                                              object: item,
                                                              queue: .main) { [weak self] _ in
             guard let self else { return }
-            if let ep = self.currentEpisode,
-               let idx = self.playlist.firstIndex(of: ep),
-               idx + 1 < self.playlist.count {
-                self.play(episode: self.playlist[idx + 1], playlist: self.playlist)
-            } else {
-                self.player.pause()
-                self.isPlaying = false
-                self.updateNowPlaying()
+            Task { @MainActor in
+                if let ep = self.currentEpisode,
+                   let idx = self.playlist.firstIndex(of: ep),
+                   idx + 1 < self.playlist.count {
+                    self.play(episode: self.playlist[idx + 1], playlist: self.playlist)
+                } else {
+                    self.player.pause()
+                    self.isPlaying = false
+                    self.updateNowPlaying()
+                }
             }
         }
 
@@ -311,10 +315,10 @@ final class PlayerViewModel: ObservableObject {
                     Self.artworkCache.setObject(img, forKey: artURL as NSURL)
                     info[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: img.size) { _ in img }
                 } else {
-                    Task.detached {
+                    Task.detached { [artURL] in
                         if let img = try? await ImagePipeline.shared.image(for: artURL) {
-                            Self.artworkCache.setObject(img, forKey: artURL as NSURL)
                             await MainActor.run { [weak self] in
+                                Self.artworkCache.setObject(img, forKey: artURL as NSURL)
                                 guard let self, self.currentEpisode?.artworkURL == artURL else { return }
                                 self.updateNowPlaying()
                             }
@@ -336,10 +340,10 @@ final class PlayerViewModel: ObservableObject {
                     Self.artworkCache.setObject(img, forKey: artURL as NSURL)
                     info[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: img.size) { _ in img }
                 } else {
-                    Task.detached {
+                    Task.detached { [artURL] in
                         if let img = try? await ImagePipeline.shared.image(for: artURL) {
-                            Self.artworkCache.setObject(img, forKey: artURL as NSURL)
                             await MainActor.run { [weak self] in
+                                Self.artworkCache.setObject(img, forKey: artURL as NSURL)
                                 guard let self, self.currentStation?.artworkURL == artURL else { return }
                                 self.updateNowPlaying()
                             }
