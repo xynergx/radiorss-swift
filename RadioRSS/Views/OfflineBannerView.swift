@@ -11,6 +11,8 @@ struct OfflineBannerView: View {
                 .background(Color.red.opacity(0.9))
                 .foregroundColor(.white)
                 .transition(.move(edge: .top))
+                .allowsHitTesting(false)
+                .zIndex(1)
         }
     }
 }
