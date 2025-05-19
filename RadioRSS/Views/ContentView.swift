@@ -12,6 +12,8 @@ struct ContentView: View {
     @State private var selection = 0
     @EnvironmentObject private var player: PlayerViewModel
 
+    @Environment(\.safeAreaInsets) private var safeAreaInsets
+
     var body: some View {
         TabView(selection: $selection) {
             StationsView()
@@ -26,7 +28,9 @@ struct ContentView: View {
         }
         .overlay(alignment: .top) {
             OfflineBannerView()
-                .ignoresSafeArea()
+                .padding(.top, safeAreaInsets.top)
+                .allowsHitTesting(false)
+                .zIndex(1)
         }
         .overlay(alignment: .bottom) {
             MiniPlayerView()
