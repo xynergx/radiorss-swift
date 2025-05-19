@@ -24,9 +24,8 @@ struct ContentView: View {
                 .tag(2)
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
         }
-        .overlay(alignment: .top) {
+        .safeAreaInset(edge: .top) {
             OfflineBannerView()
-                .ignoresSafeArea()
         }
         .overlay(alignment: .bottom) {
             MiniPlayerView()
